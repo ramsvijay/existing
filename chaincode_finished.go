@@ -37,14 +37,14 @@ func main() {
 // Init resets all the things
 func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 
-var name string
-
+var name,str string
+str := `{"account": "` + args[1] + `", "money": "` + args[2] + `"}`
 	if len(args) != 3 {
 		return nil, errors.New("Incorrect number of arguments. Expecting 1")
 	}
 name =args[0]
 
-	err := stub.PutState(name, []byte(args[1],args[2]))
+	err := stub.PutState(name, []byte(str))
 	if err != nil {
 		return nil, err
 	}
@@ -85,16 +85,16 @@ func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function strin
 func (t *SimpleChaincode) write(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 
 	var err error
-var name string
+var str,name string
 	fmt.Println("running write()")
-
+str := `{"account": "` + args[1] + `", "money": "` + args[2] + `"}`
 	if len(args) != 1 {
 		return nil, errors.New("Incorrect number of arguments. Expecting 2. name of the key and value to set")
 	}
 
 	name = args[0] //rename for funsies
 	
-	err = stub.PutState(name, []byte(string(args[1]),string(args[2]))) //write the variable into the chaincode state
+	err := stub.PutState(name, []byte(str)) //write the variable into the chaincode state
 	if err != nil {
 		return nil, err
 	}
