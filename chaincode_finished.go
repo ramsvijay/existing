@@ -37,21 +37,18 @@ func main() {
 // Init resets all the things
 func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 
-var name,account,money string
+var name string
 
 	if len(args) != 3 {
 		return nil, errors.New("Incorrect number of arguments. Expecting 1")
 	}
 name =args[0]
-account =args[1]
-	err := stub.PutState(name, []byte(args[1]))
+
+	err := stub.PutState(name, []byte(args[1],args[2]))
 	if err != nil {
 		return nil, err
 	}
-err := stub.PutState(account, []byte(args[2]))
-	if err != nil {
-		return nil, err
-	}
+
 
 	return nil, nil
 }
@@ -88,24 +85,20 @@ func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function strin
 func (t *SimpleChaincode) write(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 
 	var err error
-var name,account,money
+var name string
 	fmt.Println("running write()")
 
-	if len(args) != 2 {
+	if len(args) != 1 {
 		return nil, errors.New("Incorrect number of arguments. Expecting 2. name of the key and value to set")
 	}
 
 	name = args[0] //rename for funsies
-	account = args[1]
-        money = args[2]
-	err = stub.PutState(name, []byte(string(account))) //write the variable into the chaincode state
+	
+	err = stub.PutState(name, []byte(string(args[1]),string(args[2]))) //write the variable into the chaincode state
 	if err != nil {
 		return nil, err
 	}
-err = stub.PutState(account, []byte(string(money))) //write the variable into the chaincode state
-	if err != nil {
-		return nil, err
-	}
+
 	return nil, nil
 }
 
@@ -113,14 +106,14 @@ err = stub.PutState(account, []byte(string(money))) //write the variable into th
 func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	var  jsonResp string
 	var err error
-var account string
+var name string
 
 	if len(args) != 1 {
 		return nil, errors.New("Incorrect number of arguments. Expecting name of the key to query")
 	}
 
-	account = args[0]
-	valAsbytes, err := stub.GetState(account)
+	name = args[0]
+	valAsbytes, err := stub.GetState(name)
 	if err != nil {
 		jsonResp = "{\"Error\":\"Failed to get state for " + account + "\"}"
 		return nil, errors.New(jsonResp)
