@@ -19,9 +19,15 @@ package main
 import (
 	"errors"
 	"fmt"
-
+        "encoding/json"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 )
+
+type bank struct{
+name string
+account string
+money string
+}
 
 // SimpleChaincode example simple Chaincode implementation
 type SimpleChaincode struct {
@@ -37,14 +43,18 @@ func main() {
 // Init resets all the things
 func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 
-var name,str string
-str := `{"account": "` + args[1] + `", "money": "` + args[2] + `"}`
+res1 :=&bank{
+name:args[0],
+account:args[1],
+money:args[2]
+}
+    res2, _ := json.Marshal(res1)
 	if len(args) != 3 {
 		return nil, errors.New("Incorrect number of arguments. Expecting 1")
 	}
-name =args[0]
 
-	err := stub.PutState(name, []byte(str))
+
+	err := stub.PutState("success", []byte(res2))
 	if err != nil {
 		return nil, err
 	}
@@ -85,16 +95,21 @@ func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function strin
 func (t *SimpleChaincode) write(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 
 	var err error
-var str,name string
+res1 :=&bank{
+name:args[0],
+account:args[1],
+money:args[2]
+}
+  res2, _ := json.Marshal(res1)
 	fmt.Println("running write()")
-str := `{"account": "` + args[1] + `", "money": "` + args[2] + `"}`
-	if len(args) != 1 {
+
+	if len(args) != 3 {
 		return nil, errors.New("Incorrect number of arguments. Expecting 2. name of the key and value to set")
 	}
 
-	name = args[0] //rename for funsies
+	//rename for funsies
 	
-	err := stub.PutState(name, []byte(str)) //write the variable into the chaincode state
+	err := stub.PutState("success", []byte(res2)) //write the variable into the chaincode state
 	if err != nil {
 		return nil, err
 	}
@@ -106,16 +121,16 @@ str := `{"account": "` + args[1] + `", "money": "` + args[2] + `"}`
 func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	var  jsonResp string
 	var err error
-var name string
+
 
 	if len(args) != 1 {
 		return nil, errors.New("Incorrect number of arguments. Expecting name of the key to query")
 	}
 
-	name = args[0]
-	valAsbytes, err := stub.GetState(name)
+	//name = args[0]
+	valAsbytes, err := stub.GetState(string(args[0]))
 	if err != nil {
-		jsonResp = "{\"Error\":\"Failed to get state for " + account + "\"}"
+		jsonResp = "{\"Error\":\"Failed to get state for " + args[0] + "\"}"
 		return nil, errors.New(jsonResp)
 	}
 
